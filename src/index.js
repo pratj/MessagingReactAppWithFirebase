@@ -1,17 +1,74 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import { connect, Provider } from "react-redux";
+import { BrowserRouter as Router, Route, Switch, withRouter } from "react-router-dom";
+import { createStore } from "redux";
+//import { AppLoader } from "./components/AppLoader/AppLoader.component";
+import "semantic-ui-css/semantic.min.css";
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import Login from "./components/Auth/Login/Login.component";
+import Register from "./components/Auth/Register/Register.component";
+import firebase from "./server/firebase";
+import { setUser } from "./store/actioncreator";
+import { combinedReducers } from "./store/reducer";
+
+
+const store = createStore(combinedReducers)
+
+const Index = (props) => {
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        props.setUser(user);
+        props.history.push("/");
+      } else {
+        props.setUser(null);
+        props.history.push("/login");
+      }
+    })
+  }, []);
+
+  console.log("Debug", props.currentUser);
+
+  return (<>
+    {/* <AppLoader loading={props.loading && props.location.pathname === "/"} /> */}
+    <Switch>
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/" component={App} />
+      {/* <Route path="/home" component={welcome} /> */}
+      
+    </Switch></>)
+}
+
+const mapStateToProps = (state) => {
+  return {
+    currentUser: state.user.currentUser,
+    //loading: state.channel.loading
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setUser: (user) => { dispatch(setUser(user)) }
+  }
+}
+
+const IndexWithRouter = withRouter(connect(mapStateToProps, mapDispatchToProps)(Index));
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <Router>
+        <IndexWithRouter />
+      </Router>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
+

@@ -7,7 +7,7 @@ Version 3 of this application is deployed on https://noteapp-test-a1027.web.app/
 4) Users have the option to Search the Messages for a particular keyword in the chat 
    or they can search for a particular username
 
-## Tech Stack Used (F
+## Tech Stack Used 
 
 1) Firestore
 2) React Hooks
